@@ -1,0 +1,228 @@
+<div class="container mx-auto p-4">
+  <h2 class="text-2xl font-bold mb-6">Loan Management</h2>
+
+  <!-- Loan Form -->
+  <form
+    [formGroup]="loanForm"
+    (ngSubmit)="applyLoan()"
+    class="bg-white p-6 rounded-lg shadow-md mb-8"
+  >
+    <select formControlName="customerId" class="p-2 border rounded w-full mb-4">
+      <option value="">Select Customer</option>
+      <option *ngFor="let customer of customers" [value]="customer.id">
+        {{ customer.fullName }}
+      </option>
+    </select>
+
+    <input
+      type="text"
+      formControlName="loanType"
+      placeholder="Loan Type"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <input
+      type="number"
+      formControlName="loanAmount"
+      placeholder="Loan Amount"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <input
+      type="number"
+      formControlName="interestRate"
+      placeholder="Interest Rate (%)"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <input
+      type="number"
+      formControlName="duration"
+      placeholder="Duration (Months)"
+      class="p-2 border rounded w-full mb-4"
+    />
+
+    <button
+      type="submit"
+      class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+    >
+      Apply for Loan
+    </button>
+  </form>
+
+  <!-- Loan List -->
+  <table class="w-full border-collapse bg-white shadow-md rounded-lg">
+    <thead>
+      <tr class="bg-gray-200">
+        <th class="p-2 border">Customer ID</th>
+        <th class="p-2 border">Loan Type</th>
+        <th class="p-2 border">Amount</th>
+        <th class="p-2 border">Interest Rate</th>
+        <th class="p-2 border">Duration (Months)</th>
+        <th class="p-2 border">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let loan of loans" class="text-center">
+        <td class="p-2 border">{{ loan.customerId }}</td>
+        <td class="p-2 border">{{ loan.loanType }}</td>
+        <td class="p-2 border">{{ loan.loanAmount }}</td>
+        <td class="p-2 border">{{ loan.interestRate }}</td>
+        <td class="p-2 border">{{ loan.duration }}</td>
+        <td class="p-2 border">{{ loan.status }}</td>
+        <td class="p-2 border">
+          <!-- View Loan Schedule Button -->
+          <button
+            (click)="viewRepaymentSchedule(loan.id)"
+            class="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600"
+          >
+            View Schedule
+          </button>
+          <!-- <button
+            (click)="openPaymentModalWithLoanId(loan.id)"
+            class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 ml-2"
+          >
+            Make Payment
+          </button> -->
+          <!-- Loan Repayment Schedule Component -->
+          <!-- <app-repayments
+            *ngIf="selectedLoanId"
+            [loanId]="selectedLoanId"
+          ></app-repayments> -->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Repayment Schedule Modal -->
+<div
+  *ngIf="selectedLoanId"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+>
+  <div
+    class="bg-white p-6 rounded-lg shadow-lg w-2/3 max-h-[80vh] overflow-y-auto"
+  >
+    <button
+      (click)="closeModal()"
+      class="mt-4 float-right bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+    >
+      Close
+    </button>
+    <h2 class="text-xl font-bold mb-4">Loan Repayment Schedule</h2>
+
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="p-2 border">Installment No.</th>
+          <th class="p-2 border">Due Date</th>
+          <th class="p-2 border">Amount</th>
+          <th class="p-2 border">Status</th>
+          <th class="p-2 border">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of schedule" class="text-center">
+          <td class="p-2 border">{{ item.installmentNumber }}</td>
+          <td class="p-2 border">{{ item.dueDate | date : "shortDate" }}</td>
+          <td class="p-2 border">{{ item.amount }}</td>
+          <td class="p-2 border">{{ item.status }}</td>
+          <td class="p-2 border">
+            <!-- <button
+              *ngIf="item.status === 'Pending'"
+              (click)="markAsPaid(item.installmentNumber)"
+              class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+            >
+              Mark as Paid
+            </button> -->
+
+            <button
+              *ngIf="item.status === 'Pending'"
+              class="bg-blue-500 text-white px-2 py-1 rounded"
+              (click)="
+                openPaymentModalWithInstallment(
+                  selectedLoanId!,
+                  item.installmentNumber,
+                  item.amount
+                )
+              "
+            >
+              Make Payment
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Button to Open Modal -->
+<!-- <button
+  (click)="openPaymentModal()"
+  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+>
+  Make Payment
+</button> -->
+
+<!-- Payment Modal -->
+<div
+  *ngIf="showPaymentModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+>
+  <div
+    class="bg-white p-6 rounded-lg shadow-lg w-2/3 max-h-[80vh] overflow-y-auto"
+  >
+    <h2 class="text-xl font-bold mb-4">Make a Payment</h2>
+
+    <form [formGroup]="makePaymentForm" (ngSubmit)="makePayment()">
+      <label>Loan:</label>
+      <select
+        formControlName="loanId"
+        [disabled]="true"
+        class="w-full p-2 border rounded mb-4"
+      >
+        <option *ngFor="let loan of loans" [value]="loan.id" [disabled]="true">
+          Loan ID: {{ loan.id }} - {{ loan.loanType }}
+        </option>
+      </select>
+
+      <!-- Select Installment Number -->
+      <label>Installment Number:</label>
+      <select
+        formControlName="installmentNumber"
+        class="w-full p-2 border rounded mb-4"
+      >
+        <option *ngFor="let item of schedule" [value]="item.installmentNumber">
+          {{ item.installmentNumber }} - {{ item.status }}
+        </option>
+      </select>
+
+      <label>Amount Paid:</label>
+      <input
+        type="number"
+        formControlName="amountPaid"
+        class="w-full p-2 border rounded mb-4"
+      />
+
+      <label>Payment Date:</label>
+      <input
+        type="date"
+        formControlName="paymentDate"
+        class="w-full p-2 border rounded mb-4"
+      />
+
+      <div class="flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          Submit Payment
+        </button>
+        <button
+          (click)="closePaymentModal()"
+          type="button"
+          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

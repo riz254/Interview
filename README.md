@@ -25,3 +25,43 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+## Project Title
+
+This is a User Management System built with Angular 16, using NgRx for state management and Bootstrap CDN for styling. The system allows users to:
+
+- View a list of users in a responsive table.
+
+- Filter users by name or email.
+
+- View user details in a Bootstrap modal.
+
+- Add new users via a reactive form with validation.
+
+- Manage state efficiently with NgRx.
+
+## Features
+
+- User List: Displays users in a table.
+
+- Search Functionality: Filter users by name or email dynamically.
+
+- User Details Modal: Opens a Bootstrap modal to view user details.
+
+- User Form (Reactive): Allows adding users with form validations.
+
+- State Management: Uses NgRx Store for state handling.
+
+- Counter Component: Implements a simple counter with NgRx Actions.
+
+## Technologies Used
+
+- Angular 16
+
+- NgRx (Store, Actions, Reducers, Effects)
+
+- Bootstrap
+
+- Tailwind CSS
+
+- RxJS (for managing observables)

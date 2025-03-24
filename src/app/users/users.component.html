@@ -1,0 +1,294 @@
+<div class="container mx-auto p-4">
+  <!-- Add User Form -->
+  <div class="flex justify-between p-3">
+    <button
+      type="button"
+      class="btn btn-primary mb-3"
+      data-bs-toggle="modal"
+      data-bs-target="#addUserModal"
+    >
+      Add New User
+    </button>
+
+    <input
+      type="text"
+      #searchInput
+      (input)="filterUsers(searchInput.value)"
+      placeholder="Search..."
+      class="px-4 py-2 pl-10 border border-black rounded-lg shadow-lg focus:outline-black focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+  <!-- add user Modal -->
+  <div
+    class="modal fade"
+    id="addUserModal"
+    tabindex="-1"
+    aria-labelledby="modalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">Add New User</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+
+        <div class="modal-body">
+          <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input
+                type="text"
+                id="name"
+                class="form-control"
+                formControlName="name"
+              />
+              <small
+                class="text-danger"
+                *ngIf="
+                  userForm.get('name')?.touched && userForm.get('name')?.invalid
+                "
+              >
+                Name is required.
+              </small>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                id="email"
+                class="form-control"
+                formControlName="email"
+              />
+              <small
+                class="text-danger"
+                *ngIf="
+                  userForm.get('email')?.touched &&
+                  userForm.get('email')?.invalid
+                "
+              >
+                Enter a valid email.
+              </small>
+            </div>
+
+            <div class="mb-3">
+              <label for="phone" class="form-label">Phone</label>
+              <input
+                type="text"
+                id="phone"
+                class="form-control"
+                formControlName="phone"
+              />
+              <small
+                class="text-danger"
+                *ngIf="
+                  userForm.get('phone')?.touched &&
+                  userForm.get('phone')?.invalid
+                "
+              >
+                Phone must be at least 10 digits.
+              </small>
+            </div>
+
+            <div class="mb-3">
+              <label for="address" class="form-label">Address</label>
+              <input
+                type="text"
+                id="address"
+                class="form-control"
+                formControlName="address"
+              />
+              <small
+                class="text-danger"
+                *ngIf="
+                  userForm.get('address')?.touched &&
+                  userForm.get('address')?.invalid
+                "
+              >
+                Address is required.
+              </small>
+            </div>
+
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="userForm.invalid"
+              >
+                Add User
+              </button>
+            </div>
+          </form>
+
+          <div *ngIf="successMessage" class="alert alert-success mt-3">
+            {{ successMessage }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User List Table -->
+  <table class="min-w-full border-collapse bg-white shadow-md rounded-lg">
+    <thead>
+      <tr class="bg-gray-700 text-white">
+        <th class="p-3 border">Name</th>
+        <th class="p-3 border">Email</th>
+        <th class="p-3 border">Phone</th>
+        <th class="p-3 border">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr
+        *ngFor="let user of filteredUsers"
+        class="text-center even:bg-gray-100 hover:bg-gray-200 transition"
+      >
+        <td class="p-3 border">{{ user.name }}</td>
+        <td class="p-3 border">{{ user.email }}</td>
+        <td class="p-3 border">{{ user.phone }}</td>
+
+        <td class="p-3 border flex justify-center gap-2">
+          <button
+            class="bg-emerald-700 text-white px-4 py-1 rounded-md hover:bg-emerald-800 transition"
+            (click)="openModal(user)"
+            data-bs-toggle="modal"
+            data-bs-target="#userModal"
+          >
+            View
+          </button>
+
+          <button
+            class="bg-red-600 text-white px-4 py-1 rounded-md hover:bg-red-700 transition"
+            (click)="deleteUser(user.id)"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!--user details Modal -->
+  <div
+    class="modal fade"
+    id="userModal"
+    tabindex="-1"
+    aria-labelledby="userModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div
+          class="modal-header bg-emerald-800 text-white d-flex w-100 justify-content-between"
+        >
+          <h2
+            class="modal-title text-center w-100 font-bold"
+            id="userModalLabel"
+          >
+            <i class="bi bi-person-circle"></i> {{ selectedUser?.username }}
+          </h2>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body" *ngIf="selectedUser">
+          <div class="container">
+            <div class="row">
+              <!-- User Info -->
+              <div class="col-md-6">
+                <h5 class="text-primary">
+                  <i class="bi bi-person-lines-fill"></i> Personal Details
+                </h5>
+                <p><strong>Id:</strong> {{ selectedUser.id }}</p>
+
+                <p><strong>Email:</strong> {{ selectedUser.email }}</p>
+                <p><strong>Phone:</strong> {{ selectedUser.phone }}</p>
+                <p><strong>Username:</strong> {{ selectedUser.username }}</p>
+                <p>
+                  <strong>Website:</strong>
+                  <a
+                    [href]="'https://' + selectedUser.website"
+                    target="_blank"
+                    class="text-decoration-none"
+                  >
+                    {{ selectedUser.website }}
+                    <i class="bi bi-box-arrow-up-right"></i>
+                  </a>
+                </p>
+              </div>
+
+              <!-- Company Details -->
+              <div class="col-md-6">
+                <h5 class="text-primary">
+                  <i class="bi bi-building"></i> Company Details
+                </h5>
+                <p><strong>Name:</strong> {{ selectedUser.company?.name }}</p>
+                <p>
+                  <strong>Catchphrase:</strong>
+                  {{ selectedUser.company?.catchPhrase }}
+                </p>
+                <p><strong>Business:</strong> {{ selectedUser.company?.bs }}</p>
+              </div>
+            </div>
+
+            <!-- Address Section -->
+            <hr />
+            <h5 class="text-primary mt-3">
+              <i class="bi bi-geo-alt-fill"></i> Address
+            </h5>
+            <div class="row">
+              <div class="col-md-6">
+                <p>
+                  <strong>Street:</strong> {{ selectedUser.address?.street }}
+                </p>
+                <p><strong>Suite:</strong> {{ selectedUser.address?.suite }}</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>City:</strong> {{ selectedUser.address?.city }}</p>
+                <p>
+                  <strong>Zipcode:</strong> {{ selectedUser.address?.zipcode }}
+                </p>
+                <p>
+                  <strong>Geo:</strong> Lat:
+                  {{ selectedUser.address?.geo?.lat }}, Lng:
+                  {{ selectedUser.address?.geo?.lng }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
