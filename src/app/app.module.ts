@@ -12,6 +12,7 @@ import { UsersComponent } from './users/users.component';
 import { StoreModule } from '@ngrx/store';
 import { counterReducer } from './state/counter.reducer';
 import { CounterComponent } from './counter/counter.component';
+
 @NgModule({
   declarations: [
     AppComponent,

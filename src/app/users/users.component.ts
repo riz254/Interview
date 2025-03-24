@@ -68,7 +68,7 @@ export class UsersComponent {
       this.successMessage = 'User added successfully!';
       setTimeout(() => (this.successMessage = ''), 3000);
 
-      this.userForm.reset(); // Clear form after submission
+      this.userForm.reset();
     }
     console.log(this.successMessage);
   }
